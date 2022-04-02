@@ -212,8 +212,156 @@ HTML FORM 사용
   9. 결과적으로 일시적 리다이렉션을 통해 재 주문이 되지않음.
 - 특수 리다이렉션 : 결과 대신 캐시를 사용.(300, 304)
 
+----------------------------------------------------------------------------------------------------------------------
 
+※ 5일차 ※
 
+* 일반 헤더
+
+Header 일반정보
+From (일반적으로 잘 사용되지 않음.
+- 유저 에이전트의 이메일 정보
+- 검색 엔진 같은 곳에서 사용
+- 내 사이트 크롤링 같은거 못하게 하던가 할때.
+  Referer
+- 이전 사이트 웹 페이지 주소
+- A에서 B로 이동하는 경우 Referer:A를 포함하여 요청함.
+- 유입 경로 분석 가능.
+  User-Agent
+- 클라이언트의 애플리케이션 정보(웹 브라우저 정보 등)
+- 통계정보
+- 어떤 브라우저에서 장애가 발생하는 파악가능.
+  Server
+- 오리진 서버(진짜 나의 요청이 있는 마지막 서버)의 소프트웨어 정보
+- Apache/2.2.22 (Debian)
+  Date
+- 메세지가 발생한 날짜와 시간
+- 현재는 응답에서만 사용함.
+
+Header 특별정보
+Host
+- 필수 값
+- 요청한 호스트 정보
+- 하나의 서버에 여러개의 도메인이 있을때.
+  Location
+- 300번 대의 응답 결과에 Location헤더가 있으면 자동 리다이렉트 함.(요청을 자동으로 리다이렉션하기 위한 값임.)
+- 201(Created)때에는 생성된 리소스 URI를 뜻함.
+  Allow
+- 허용 가능한 HTTP 메서드를 알려줌.
+- 405(Method Not Allowed)에서 응답에 포함해야함.
+- Allow: GET, HEAD, PUT.
+  Retry-After
+- 유저 에이전트가 다음 요청을 하기까지 기다려야 하는 시간.
+- 503(Service Unavailable) : 서비스가 언제까지 불가능 한지 알려줄 수 있음.
+- Retry-after : Fri, 31 Dec 1999 23:59:59 GMT / Retry-after : 120 (초단위 표기)
+
+인증
+Authoriztion : Basuc xxxxxxxxxxxxxxxxxxx
+WWW-Authenticate
+- 리소스 접근시 필요한 인증 방법 정의
+- 401(Unauthorized) 응답과 함게 사용
+  -> WWW-Authenticate : Newauth realm="apps", type=1, title="Login to \"apps\"", Basic realm="simple"
+
+쿠키
+사용처
+- 사용자 로그인 세션 관리.
+- 광고 정보 트레킹.
+- 보안에 민감한 데이터는 절대 저장하면 안됨.
+  쿠키 정보는 항상 서버에 전송됨.
+- 네트워크 트래픽 추가 유발.(계속 쿠키정보는 넘어가기때문.)
+- 최소한의 정보만 사용(세션ID, 인증 토큰 등)
+- 클라이언트 자바스크립트 로직에서 사용할거면 웹스토리지(localStorage, sessionStorage)에서 사용
+  Set-Cookie
+- set-cookie: sessionId=abcde1234; expires=Sat, 26-Dec-2020 00:00:00 GMT; path=/; domain=.google.com;Secure
+- 로그인이 성공되면 Session 키라는걸 생성하여 데이터베이스에 저장해놓고 클라이언트로 Set-cookie로 쿠키정보를 반환해줌.
+  생명주기
+- 세션 쿠키 : 만료 날짜를 생략하면 브라우저 종료시 까지만 유지.
+- 만료 날짜를 입력하면 해당 날짜까지 유지.
+  -> 만료일이 되면 쿠키삭제 (Set-Cookie: expires=지난날짜)
+  -> 초단위로 지정할 수 있고 0이나 음수를 지정하면 쿠키삭제 (Set-Cookie: max-age=3600)
+  도메인
+- domain=naver.com 라고 명시하면
+  -> naver.com도 접근되고
+  -> email.naver.com도 접근가능
+- 도메인을 생략할 경우
+  -> 해당 쿠키를 생성하였던 곳에서만 쿠키 접근 가능.
+  경로
+- 해당 경로를 포함한 하위 경로 페이지만 쿠키 접근 가능
+- path=/home
+  -> /home 가능
+  -> /home/level1/level2 가능
+  -> /hello 불가능
+  보완
+  Secure
+  - Secure를 넣으면 https인 경우에만 전송.
+  - 없으면 http, https 구분 안함.
+  HttpOnly
+  - XSS 공격방지
+  - 자바스크립트에서 접근 불가.(document.cookie)
+  - HTTP 전송에만 사용.
+  SameSite
+  - XSRF 공격 방지
+  - 요청 도메인과 쿠키게 설정된 도메인이 같은 경우만 쿠키 전송.
+  - 추가된지 얼마안되서 지원 하는지 한번 확인해보고 사용해야함.
+
+캐시 기본 동작
+cache-control: max-age=60 하면 서버에서 받은 값을 60초동안은 캐쉬에 저장하여 캐쉬에서 꺼내서 값으로 사용함.
+
+캐쉬가 만료되서 다시 받을때 서버와 데이터가 변경되지 않았을경우.
+1. 브라우저 캐쉬는 Last-Modified: 2022-04-02 17:00:00 일때
+2. 서버로 캐쉬시간 초과되어 보낼경우 if-modified-since: 2022-04-02 17:00:00
+3. 만약 캐쉬의 마지막 수정일과 서버에서 데이터 최종수정일과 비교하여 변경되지 않았다면.
+4. 서버에서 클라이언트로 304(Not Modified) 로 헤더 메타 정보만 재전송함.
+5. 응답 결과를 브라우저 캐쉬에서 재사용, 캐시의 메타 정보 갱신.
+
+ETag(Entity Tag)
+- 위와 같이  if-modified-since: 2022-04-02 17:00:00로 한것처럼.
+- ETag를 사용하여 현재 ETag: "aaaaaaaaaaaaa" 를 보내 서버에서 관리하는 ETag와 같은지만 보기도 함.
+- 캐시 제어 로직을 서버에서 완전히 관리함.
+- 사용 예
+  -> 서버는 베타 오픈 기간인 3일 동안 파일이 변경되어도 ETag는 동일하게 유지함.
+  -> 애플리케이션 배포 주기에 맞춰 ETag도 모두 갱신.
+
+검증 헤더와 조건부 요청
+검증 헤더
+- 캐시 데이터와 서버 데이터가 같은지 검증하는 데이터
+- Last-Modified, ETag
+  조건부 요청 헤더
+- 검증 헤더로 조건에 따른 분기
+- If-Modified-Since, If-Unmodified-Since: Last-Modified 사용
+- if-Match, If-None_match: ETag 사용
+- 조건이 만족하면 200(OK)
+- 조건이 만족하지 않으면 304(Not Modified)
+
+Cache-Control(캐시 지시어)
+Cache-Control: max-age
+- 캐시 유효시간, 초단위
+  Cache-Control: no-cache
+- 데이터는 캐시해도 되지만, 항상 원(origin) 서버에 검증받아 사용.
+  Cache-Control: no-store
+- 데이터에 민감한 정보가 있으므로 저장하면 안됨.
+  Cache-Control: private (디폴트)
+- 응답이 해당 사용자만을 위한 것임. private 캐시에 저장해야 함
+  Cache-Control: public
+- 응답이 public 캐시에 저장되어도 됨.
+  Cache-Control: s-maxage
+- 프록시 캐시에만 적용되는 max-age
+  Age: 60 (초 단위)
+- 오리진 서버에서 응답 후 프록시 캐시 내에서 머문 시간
+  Cache-Control: must-revalidate
+- must-revalidate는 캐시 유효 시간이라면 캐시를 사용함.
+- 캐시 만료후 최초 조회시 원서버에 검증해야함.
+- 원 서버 접근 실패시 반드시 오류가 발생해야 함. - 504(Gateway Timeout)
+
+확실하게 캐시를 무효화 하기 위할때에는
+-> Cache-Control: no-cache, no-store, must-revalidate
+-> Pragma : no-cache (HTTP1.0 하위 호환을 위해 같이 넣어줌.)
+
+must-revalidate는 원 서버에 접근 할 수 없는 경우, 항상 오류가 발생
+no-cache는 서버 설정에 따라 캐시 데이터를 반황 할 수 있음.(오류 보다는 오래된 데이터라도 보여주자)
+
+프록시 캐시 도입
+- 미국에 원서버(원래 자원과 리소스가 있는 서버)가 있을경우 한국 어딘가에 프록시 캐시 서버가 있다면 한국 프록시 캐시에서 호출함.
 
 
 
