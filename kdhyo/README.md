@@ -171,3 +171,21 @@
 #### FRAGMENT
 - html 내부 북마크 등에서 사용된다.
 - 서버에 전송하는 정보가 아니다.
+
+### 웹 브라우저 요청 흐름
+
+> https://www.google.com:443/search?q=hello&hl=ko
+
+1. DNS 에 조회하여 IP 주소를 찾는다.
+2. HTTP 요청 메세지 생성
+> GET /search?q=hello&hl=ko HTTP/1.1  
+Host: www.google.com
+3. SOCKET 라이브러리를 통해 전달.
+   - A: TCP/IP 연결 (IP, PORT)
+   - B: 데이터 전달
+4. TCP/IP 패킷 생성, HTTP 메시지 포함
+5. 데이터를 서버에 전달.
+6. TCP/IP 패킷을 버리고, HTTP 메시지를 열어서 확인.
+7. HTTP 응답 메시지 생성
+8. 응답 메시지 전달
+9. 브라우저에서 해당 응답 메시지를 확인 후 렌더링
