@@ -471,3 +471,35 @@ Stateful, Stateless 차이
   - 결과 대신 캐시를 사용
 
 ![Redirection](redirection.png)
+
+## HTTP 헤더1 - 일반 헤더
+
+### RFC 723x변화
+
+- 엔티티 (Entity) -> 표현 (Representation)
+- Representation = Representation Metadata + Representation Data
+- 표현 = 표현 메타데이터 + 표현 데이터
+  - 표헌 메타데이터: 헤더에 포함 되어 있는 표현 데이터를 해석할 수 있는 정보
+  - 표현 데이터 : 메시지 본문 내용
+    - 메시지 본문 = 페이로드 (payload) 와 같은 의미로 사용
+
+### 표현
+
+> 표현 헤더는 전송, 응답 둘다 사용이 가능하다.
+  
+- Content-Type: 표현 데이터의 형식
+  - 본문 내용이 어떤 형식인지
+  - text/html; charset=utf-8
+  - application/json
+  - image/png
+- Content-Encoding: 표현 데이터의 압축 방식
+  - 데이터를 전달하는 곳에서 압축 후 인코딩 헤더를 통해 클라이언트에서 어떤 걸로 압축했는지 알려준다.
+  - gzip
+  - deflate
+  - identity
+- Content-Language: 표현 데이터의 자연 언어
+  - ko
+  - en
+  - en-US
+- Content-Length: 표현 데이터의 길이
+  - 바이트 단위로 표현되며 본문 데이터의 길이를 표시한다.
