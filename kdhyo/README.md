@@ -550,3 +550,23 @@ Stateful, Stateless 차이
   - 응답에서 사용한다.
 - Date: 메시지가 생성된 날짜
   - 응답에서만 사용한다.
+
+### 특별한 정보
+
+- Host: 요청한 호스트 정보(도메인)
+  - 요청에서 `필수`로 사용한다.
+  - 하나의 서버가 여러 도메인을 처리해야 할 때
+  - 하나의 IP 주소에 여러 도메인이 적용되었을 때
+- Location: 페이지 리다이렉션
+  - 3xx 응답의 결과에 Location 헤더가 있으면, Location 위치로 자동으로 이동한다.
+  - 201: Location 값은 요청에 의해 생성된 리소스 URI
+  - 3xx: Location 값은 요청을 자동으로 리다이렉션하기 위한 대상 리소스
+- Allow: 허용 가능한 HTTP 메서드
+  - 405 (Method Not Allowed) 에서 응답에 포함해야 한다.
+  - Allow: GET, HEAAD, PUT
+  - 만약 POST 로 요청이 왔을 때 서버에 POST 에 대한 결과가 없을 때 보내는 방식
+  - 하지만, 잘 사용하지 않는다.
+- Retry-After: 유저 에이전트가 다음 요청을 하기까지 기다려야 하는 시간
+  - 503(Service Unavailable): 서비스가 언제까지 불능인지 알려줄 수 있다.
+  - Retry-After: Fri, 31 Dec 1999 23:59:59 GMT (날짜 표기)
+  - Retry-After: 120 (초단위 표기)
