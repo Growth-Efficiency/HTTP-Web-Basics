@@ -513,3 +513,19 @@ Stateful, Stateless 차이
 - Accept-Charset: 클라이언트가 선호하는 문자 인코딩
 - Accept-Encoding: 클라이언트가 선호하는 압축 인코딩
 - Accept-Language: 클라이언트가 선호하는 자연 언어
+
+### 전송방식
+
+- 단순 전송
+  - 기본 전송 방식
+  - Content-Length 를 보낸다.
+- 압축 전송
+  - 내용을 압축하여 용량을 확 줄일 수 있게 된다.
+  - Content-Encoding 을 보내서 어떤 압축 형식인지 보낸다.
+- 분할 전송
+  - Transfer-Encoding 을 보낸다.
+  - 전체 길이를 알 수 없기 때문에 Content-Length 를 보낼 수 없다.
+- 범위 전송
+  - 클라이언트에서는 Range 를 보낸다.
+  - 서버에서는 Content-Range 를 보낸다.
+  - 클라이언트에서 받고 끊겼을 경우 처음부터 받는 게 아닌 특정 부분부터 전송을 받도록 요청하고, 전달하는 방식
