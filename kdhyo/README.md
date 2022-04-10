@@ -708,3 +708,22 @@ Stateful, Stateless 차이
 - private: 응답이 해당 사용자만을 위한 것이다. (사용자 정보 등) private 캐시에 저장해야 한다. (기본 값)
 - s-maxage: 프록시 캐시에만 적용되는 max-age
 - Age: 오리진 서버에서 응답 후 프록시 캐시 내에 머문 시간 (초)
+
+### 캐시 무효화
+
+> 확실한 캐시 무효화 하는 방법 - 아래 두 줄을 전부 추가한다.
+
+- Cache-Control: no-cache, no-store, must-revalidate
+- Pragema: no-cache
+
+- Cache-Control: no-cache
+  - 데이터는 캐시해도 되지만, 항상 원 서버에 검증하고 사용
+  - 오리진 서버와 네트워트 문제가 있을 경우 프록시 캐시에 있는 데이터를 반환할 수도 있다.
+- Cache-Control: no-stroe
+  - 데이터에 민감한 정보가 있으므로 저장하면 안된다.
+- Cache-Control: must-revalidate
+  - 캐시 만료 후 최초 조회 시 원 서버에 검증을 한다.
+  - 캐시 유효 시간이라면 캐시 값을 사용한다.
+  - 오리진 서버와 네트워크 문제가 있을 경우 504 Gateway Timeout 으로 에러를 보낸다.
+- Pragma: no-cache
+  - HTTP 1.0 하위 호환일 경우 캐시를 사용하지 않는다.
